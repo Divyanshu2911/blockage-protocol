@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Python
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+
+# Testing
+coverage/
+
+# Production
+build/
+dist/
+
+# Misc
+.DS_Store
+.env
+.npm
+*.log
+
+# Hardhat
+artifacts/
+cache/
+typechain-types/
