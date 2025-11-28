@@ -1,0 +1,6 @@
+Simulation Scorecard
+====================
+Total Epochs: 100
+Active Nodes: 50
+Gini Coefficient (Stake): 0.3859313971335528
+Gini Coefficient (Wins): 0.6112

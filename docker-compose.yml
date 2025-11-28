@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # The Blockchain Node
+  chain:
+    image: node:18-alpine
+    working_dir: /app
+    volumes:
+      - ./contracts:/app
+    command: sh -c "npm install && npx hardhat node --hostname 0.0.0.0"
+    ports:
+      - "8546:8545"
+
+  # L1 Simulator (Updates the seed)
+  l1-sim:
+    image: node:18-alpine
+    working_dir: /app
+    volumes:
+      - ./contracts:/app
+    environment:
+      - SEED_INGESTION_ADDRESS=${SEED_INGESTION_ADDRESS}
+    command: sh -c "npx hardhat run scripts/simulate_l1.ts --network docker"
+    depends_on:
+      - chain
+
+  # Blockage Node 1
+  node-1:
+    build: .
+    environment:
+      - RPC_URL=http://chain:8545
+      - PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 # Account 0
+      - REGISTRY_ADDRESS=${REGISTRY_ADDRESS}
+      - SEED_INGESTION_ADDRESS=${SEED_INGESTION_ADDRESS}
+    depends_on:
+      - chain
+
+  # Blockage Node 2
+  node-2:
+    build: .
+    environment:
+      - RPC_URL=http://chain:8545
+      - PRIVATE_KEY=0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d # Account 1
+      - REGISTRY_ADDRESS=${REGISTRY_ADDRESS}
+      - SEED_INGESTION_ADDRESS=${SEED_INGESTION_ADDRESS}
+    depends_on:
+      - chain

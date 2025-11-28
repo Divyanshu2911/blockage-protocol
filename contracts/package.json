@@ -1,0 +1,16 @@
+{
+    "name": "blockage-contracts",
+    "version": "0.1.0",
+    "description": "Smart contracts for blockage-protocol",
+    "scripts": {
+        "test": "hardhat test",
+        "compile": "hardhat compile",
+        "deploy": "hardhat run scripts/deploy.ts"
+    },
+    "devDependencies": {
+        "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+        "hardhat": "^2.22.0",
+        "typescript": "^5.0.0",
+        "ts-node": "^10.0.0"
+    }
+}

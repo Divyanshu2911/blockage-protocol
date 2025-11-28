@@ -1,0 +1,21 @@
+{
+  "name": "blockage-node",
+  "version": "0.1.0",
+  "description": "Off-chain node for blockage-protocol",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "build": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {
+    "ethers": "^6.0.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "ts-node": "^10.0.0",
+    "@types/node": "^18.0.0",
+    "jest": "^29.0.0"
+  }
+}

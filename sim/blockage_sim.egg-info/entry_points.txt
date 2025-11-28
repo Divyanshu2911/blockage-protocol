@@ -1,0 +1,2 @@
+[console_scripts]
+blockage-sim = blockage.cli:main
