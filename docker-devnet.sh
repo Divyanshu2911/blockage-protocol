@@ -5,6 +5,14 @@ set -e
 cleanup() {
     echo "Stopping containers..."
     docker-compose down
+    if [ -n "$DASHBOARD_PID_1" ]; then
+        echo "Stopping Dashboard 1..."
+        kill $DASHBOARD_PID_1
+    fi
+    if [ -n "$DASHBOARD_PID_2" ]; then
+        echo "Stopping Dashboard 2..."
+        kill $DASHBOARD_PID_2
+    fi
     exit
 }
 trap cleanup SIGINT SIGTERM
@@ -37,6 +45,27 @@ SEED_ADDR=$(echo "$DEPLOY_OUTPUT" | grep "SeedIngestion deployed to:" | awk '{pr
 echo "Registry: $REGISTRY_ADDR"
 echo "SeedIngestion: $SEED_ADDR"
 cd ..
+
+# Start Dashboard for Node 1
+echo "Starting Dashboard for Node 1..."
+export VITE_REGISTRY_ADDRESS=$REGISTRY_ADDR
+export VITE_SEED_INGESTION_ADDRESS=$SEED_ADDR
+export VITE_NODE_PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+
+cd dashboard
+npm run dev -- --port 5173 &
+DASHBOARD_PID_1=$!
+
+# Start Dashboard for Node 2
+echo "Starting Dashboard for Node 2..."
+export VITE_NODE_PRIVATE_KEY=0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
+
+npm run dev -- --port 5174 &
+DASHBOARD_PID_2=$!
+cd ..
+
+echo "Node 1 Dashboard running at http://localhost:5173"
+echo "Node 2 Dashboard running at http://localhost:5174"
 
 echo "Starting L1 Simulator and Nodes..."
 # Now we start the rest, passing in the env vars

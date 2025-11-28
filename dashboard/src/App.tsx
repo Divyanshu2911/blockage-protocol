@@ -197,7 +197,10 @@ function App() {
           <h2>Debug Info</h2>
           <pre style={{ fontSize: '0.75rem', overflow: 'auto' }}>
             RPC: {CONTRACTS.RPC} (Proxied to 8545) <br />
-            Node Key: {NODE_KEY ? "Loaded" : "Missing"}
+            Registry: {CONTRACTS.REGISTRY} <br />
+            Seed Contract: {CONTRACTS.SEED} <br />
+            Node Key: {NODE_KEY ? "Loaded" : "Missing"} <br />
+            Last Update: {new Date().toLocaleTimeString()}
           </pre>
         </div>
       </main>
