@@ -105,6 +105,16 @@ function App() {
               onChange={(e) => setStake(Math.max(10, Math.min(100, Number(e.target.value))))}
             />
           </div>
+
+          <div className="input-group">
+            <label>Role</label>
+            <select style={{ padding: '0.75rem', borderRadius: '0.5rem', background: '#0f172a', color: 'white', border: '1px solid #334155' }} onChange={(e) => console.log("Role selected:", e.target.value)}>
+              <option value="1">Sequencer (Block Producer)</option>
+              <option value="2">Prover (ZK Worker)</option>
+              <option value="3">Full Node (Both)</option>
+            </select>
+          </div>
+
           <button onClick={() => setSetupDone(true)}>Join Network</button>
         </div>
       </div>
@@ -177,6 +187,9 @@ function App() {
           </div>
         </div>
 
+        {/* CrowdProve Section */}
+        <CrowdProveSection />
+
         <div className="card">
           <h2>Recent Epochs</h2>
           <div className="history-list">
@@ -204,6 +217,102 @@ function App() {
           </pre>
         </div>
       </main>
+    </div>
+  );
+}
+
+// --- CrowdProve Components (Simulated for UI Demo) ---
+import { Users, Server, CheckCircle, Clock as ClockIcon } from 'lucide-react';
+
+function CrowdProveSection() {
+  const [jobs, setJobs] = useState<{ id: string, status: 'pending' | 'assigned' | 'completed', worker?: string }[]>([]);
+  const [workers, setWorkers] = useState<{ id: string, status: 'idle' | 'working' }[]>([
+    { id: '0xEa53...65E0', status: 'idle' },
+    { id: '0xA4A8...09Bf', status: 'idle' },
+    { id: '0xBf6d...66b1', status: 'idle' },
+  ]);
+
+  // Simulate Job Creation & Processing
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // 1. Create new batch occasionally
+      if (Math.random() > 0.7 && jobs.filter(j => j.status !== 'completed').length < 5) {
+        const batchId = Math.floor(Math.random() * 1000);
+        const newJobs = Array(3).fill(0).map((_, i) => ({
+          id: `${batchId}-${i}`,
+          status: 'pending' as const
+        }));
+        setJobs(prev => [...prev, ...newJobs].slice(-10)); // Keep last 10
+      }
+
+      // 2. Assign Jobs to Idle Workers
+      setJobs(prev => {
+        const next = [...prev];
+        const pending = next.find(j => j.status === 'pending');
+        if (pending) {
+          const worker = workers.find(w => w.status === 'idle');
+          if (worker) {
+            pending.status = 'assigned';
+            pending.worker = worker.id;
+            setWorkers(ws => ws.map(w => w.id === worker.id ? { ...w, status: 'working' } : w));
+          }
+        }
+        return next;
+      });
+
+      // 3. Complete Jobs
+      setJobs(prev => {
+        const next = [...prev];
+        const assigned = next.filter(j => j.status === 'assigned');
+        assigned.forEach(job => {
+          if (Math.random() > 0.6) {
+            job.status = 'completed';
+            setWorkers(ws => ws.map(w => w.id === job.worker ? { ...w, status: 'idle' } : w));
+          }
+        });
+        return next;
+      });
+
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [jobs, workers]);
+
+  return (
+    <div className="card">
+      <h2><Users className="icon" /> CrowdProve Network (Live)</h2>
+
+      <div className="grid-2">
+        {/* Worker Pool */}
+        <div className="sub-card">
+          <h3><Server className="icon-sm" /> Active Workers ({workers.length})</h3>
+          <div className="worker-list">
+            {workers.map(w => (
+              <div key={w.id} className={`worker-item ${w.status}`}>
+                <div className="worker-id">{w.id}</div>
+                <div className="worker-status">
+                  {w.status === 'working' ? <span className="badge working">Working</span> : <span className="badge idle">Idle</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Job Queue */}
+        <div className="sub-card">
+          <h3><ClockIcon className="icon-sm" /> Job Queue</h3>
+          <div className="job-list">
+            {jobs.slice().reverse().map(j => (
+              <div key={j.id} className="job-item">
+                <span className="job-id">Job #{j.id}</span>
+                {j.status === 'pending' && <span className="badge pending">Pending</span>}
+                {j.status === 'assigned' && <span className="badge assigned">Assigned to {j.worker?.slice(0, 6)}</span>}
+                {j.status === 'completed' && <span className="badge completed"><CheckCircle size={12} /> Done</span>}
+              </div>
+            ))}
+            {jobs.length === 0 && <div className="empty-text">No active jobs</div>}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

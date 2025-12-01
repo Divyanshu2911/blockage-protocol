@@ -13,5 +13,11 @@ export const SEED_ABI = [
     "event SeedUpdated(uint256 indexed epoch, bytes32 seed)"
 ];
 
+export const REGISTRY_ABI = [
+    "function register(bytes32 _vrfKey, uint8 _role) external payable",
+    "function getRole(address node) external view returns (uint8)",
+    "function getStake(address node) external view returns (uint256)"
+];
+
 export const getProvider = () => new ethers.JsonRpcProvider(CONTRACTS.RPC);
 export const getSeedContract = (provider: ethers.Provider) => new ethers.Contract(CONTRACTS.SEED, SEED_ABI, provider);

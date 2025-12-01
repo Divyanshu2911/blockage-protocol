@@ -15,4 +15,7 @@ export const config = {
     proofEscrowAddress: process.env.PROOF_ESCROW_ADDRESS || '',
     chainId: parseInt(process.env.CHAIN_ID || '31337'),
     logLevel: process.env.LOG_LEVEL || 'info',
+    // CrowdProve Config
+    mode: process.env.MODE || 'sequencer', // sequencer, coordinator, worker
+    jdUrl: process.env.JD_URL || 'http://localhost:3000', // For workers to connect to JD
 };

@@ -10,29 +10,32 @@ contract Registry {
         State state;
         bytes32 vrfKey;
         uint256 unbondTime;
+        uint8 role; // 1=Sequencer, 2=Prover, 3=Both
     }
 
     mapping(address => Node) public nodes;
     uint256 public constant UNBONDING_PERIOD = 7 days;
 
-    event Registered(address indexed node, uint256 stake);
+    event Registered(address indexed node, uint256 stake, uint8 role);
     event Activated(address indexed node);
     event UnbondingStarted(address indexed node, uint256 releaseTime);
     event Exited(address indexed node);
 
-    function register(bytes32 _vrfKey) external payable {
+    function register(bytes32 _vrfKey, uint8 _role) external payable {
         require(nodes[msg.sender].state == State.Exited || nodes[msg.sender].stake == 0, "Already registered");
         require(msg.value > 0, "Stake required");
+        require(_role > 0 && _role <= 3, "Invalid role");
 
         nodes[msg.sender] = Node({
             stake: msg.value,
             age: 0,
             state: State.Pending,
             vrfKey: _vrfKey,
-            unbondTime: 0
+            unbondTime: 0,
+            role: _role
         });
 
-        emit Registered(msg.sender, msg.value);
+        emit Registered(msg.sender, msg.value, _role);
     }
 
     function activate() external {
@@ -61,5 +64,17 @@ contract Registry {
         require(sent, "Transfer failed");
 
         emit Exited(msg.sender);
+    }
+
+    function isActive(address node) external view returns (bool) {
+        return nodes[node].state == State.Active;
+    }
+
+    function getStake(address node) external view returns (uint256) {
+        return nodes[node].stake;
+    }
+
+    function getRole(address node) external view returns (uint8) {
+        return nodes[node].role;
     }
 }

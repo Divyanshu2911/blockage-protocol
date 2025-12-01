@@ -5,14 +5,20 @@ set -e
 cleanup() {
     echo "Stopping containers..."
     docker-compose down
+    
+    echo "Stopping Dashboard processes..."
+    # Kill the process group to ensure child processes (vite) are also killed
     if [ -n "$DASHBOARD_PID_1" ]; then
-        echo "Stopping Dashboard 1..."
-        kill $DASHBOARD_PID_1
+        pkill -P $DASHBOARD_PID_1 || kill $DASHBOARD_PID_1
     fi
     if [ -n "$DASHBOARD_PID_2" ]; then
-        echo "Stopping Dashboard 2..."
-        kill $DASHBOARD_PID_2
+        pkill -P $DASHBOARD_PID_2 || kill $DASHBOARD_PID_2
     fi
+    
+    # Failsafe: Kill any node process listening on ports 5173/5174
+    fuser -k 5173/tcp >/dev/null 2>&1
+    fuser -k 5174/tcp >/dev/null 2>&1
+    
     exit
 }
 trap cleanup SIGINT SIGTERM
@@ -72,4 +78,4 @@ echo "Starting L1 Simulator and Nodes..."
 export REGISTRY_ADDRESS=$REGISTRY_ADDR
 export SEED_INGESTION_ADDRESS=$SEED_ADDR
 
-docker-compose up l1-sim node-1 node-2
+docker-compose up l1-sim node-1 node-2 coordinator
